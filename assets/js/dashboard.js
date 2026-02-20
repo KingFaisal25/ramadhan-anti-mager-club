@@ -8,6 +8,7 @@
   const JADWAL = window.JADWAL || {};
   const NAME_KEY = 'ramc_nama';
   const DAY_OVERRIDE = 'ramc_day_override';
+  const CUSTOM_KEY = 'ramc_custom_v2';
 
   const $ = id => document.getElementById(id);
 
@@ -33,9 +34,22 @@
 
   const getNama = () => (localStorage.getItem(NAME_KEY) || 'neng') === 'aa' ? 'aa' : 'neng';
   const setNama = v => localStorage.setItem(NAME_KEY, v === 'aa' ? 'aa' : 'neng');
-  const sumPts = rows => rows.reduce((a, r) => { if (!r.selesai) return a; return a + Number(BY_ID.get(r.item_id)?.poin || 0); }, 0);
+
+  const getCustomItems = () => {
+    try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); } catch { return []; }
+  };
+
+  const sumPts = rows => rows.reduce((a, r) => {
+    if (!r.selesai) return a;
+    const it = BY_ID.get(r.item_id) || getCustomItems().find(x => x.id === r.item_id);
+    return a + Number(it?.poin || 0);
+  }, 0);
+
   const cntDone = rows => new Set(rows.filter(r => r.selesai).map(r => r.item_id)).size;
-  const pct = done => Math.round(done / Math.max(1, ITEMS.length) * 100);
+  const pct = done => {
+    const total = ITEMS.length + getCustomItems().length;
+    return Math.round(done / Math.max(1, total) * 100);
+  };
   const formatDateID = () => new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
 
   // ── DOM init ──────────────────────────────────────────────
