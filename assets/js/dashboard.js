@@ -175,18 +175,56 @@
 
   const supabase = () => window.RAMC?.supabase;
 
+  // ── Local Data Helpers ─────────────────────────────────────
+  const getLocalChecklistData = (day) => {
+    const res = [];
+    ['neng', 'aa'].forEach(nama => {
+      const key = `ramc_prog_v3:${nama}:${day}`;
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const entries = JSON.parse(raw); // [[id, obj], ...]
+          entries.forEach(([_, val]) => res.push(val));
+        }
+      } catch (e) { console.error('Error reading local checklist', e); }
+    });
+    return res;
+  };
+
+  const mergeData = (serverData, localData) => {
+    const map = new Map();
+    // Server data first
+    serverData.forEach(d => map.set(`${d.nama}:${d.item_id}`, d));
+    // Local data overrides server (optimistic/latest from this device)
+    localData.forEach(d => map.set(`${d.nama}:${d.item_id}`, d));
+    return Array.from(map.values());
+  };
+
   const loadToday = async () => {
     const key = `ramc_dash_today_v2:${state.day}`;
+    let serverData = [];
+    
+    // Show loading indicator
+    const hint = $('liveHint');
+    if (hint) hint.textContent = 'Memuat data terbaru...';
+
     try {
       const { data, error } = await supabase().from('daily_progress').select('nama,hari_ke,item_id,selesai').eq('hari_ke', state.day);
       if (error) throw error;
-      cache.write(key, data || []);
+      serverData = data || [];
+      cache.write(key, serverData);
       setOffline(false);
-      return data || [];
     } catch {
       setOffline(true);
-      return cache.read(key) || [];
+      serverData = cache.read(key) || [];
     }
+
+    // Merge with local checklist cache
+    const localData = getLocalChecklistData(state.day);
+    const merged = mergeData(serverData, localData);
+    
+    if (hint) hint.textContent = 'Data terupdate ✅';
+    return merged;
   };
 
   const loadMonth = async () => {
@@ -205,9 +243,17 @@
 
   let refreshTimer = 0;
   const refresh = async () => {
-    const [today, month] = await Promise.all([loadToday(), loadMonth()]);
+    const today = await loadToday();
+    let month = await loadMonth();
+    
+    // Merge today's optimistic data into month view for consistency
+    // Remove old today entries from month data
+    const monthFiltered = month.filter(d => Number(d.hari_ke) !== state.day);
+    // Add new today entries
+    const monthMerged = [...monthFiltered, ...today];
+
     renderToday(today);
-    renderMonth(month);
+    renderMonth(monthMerged);
   };
   const debouncedRefresh = () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 200); };
 
@@ -229,6 +275,17 @@
         debouncedRefresh();
       }).subscribe();
   };
+
+  // ── Cross-tab Reactivity ──────────────────────────────────
+  window.addEventListener('storage', (e) => {
+    if (e.key && e.key.startsWith('ramc_prog_v3')) {
+      // Check if it's for today
+      if (e.key.includes(`:${state.day}`)) {
+        console.log('[Dashboard] Local checklist updated, refreshing...');
+        debouncedRefresh();
+      }
+    }
+  });
 
   // ── Stars canvas ─────────────────────────────────────────
   const initStars = () => {
@@ -274,4 +331,13 @@
   } else {
     window.addEventListener('ramc:ready', () => init().catch(() => toast('Waduh, koneksi bermasalah 😅')), { once: true });
   }
+
+  // Expose for Testing
+  window.__DashboardApp = {
+    state,
+    mergeData,
+    getLocalChecklistData,
+    loadToday,
+    refresh
+  };
 })();

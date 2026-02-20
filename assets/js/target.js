@@ -1,6 +1,6 @@
 // ============================================================
 // TARGET.JS — Ramadhan Anti Mager Club 🌙
-// Manajemen target & resolusi Ramadhan
+// Manajemen target & resolusi Ramadhan — Refactored & Synced
 // ============================================================
 (() => {
     const PEOPLE = ['neng', 'aa'];
@@ -8,14 +8,18 @@
 
     const $ = id => document.getElementById(id);
     const supabase = () => window.RAMC?.supabase;
+    const syncManager = () => window.SyncManager;
 
     const toast = (msg, dur = 2400) => {
         const el = $('toast'); if (!el) return;
         el.textContent = msg; el.className = 'toast show';
         clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), dur);
     };
-    const setOffline = v => { const b = $('netBadge'); if (b) b.style.display = v ? 'inline-flex' : 'none'; };
-    const cache = { read: k => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch { return null; } }, write: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } };
+    
+    const cache = { 
+        read: k => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch { return null; } }, 
+        write: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } 
+    };
 
     const state = {
         neng: { items: [], editingId: null },
@@ -42,11 +46,16 @@
         const wrap = $(`${nama}_listWrap`); if (!wrap) return;
         const badge = $(`${nama}CountBadge`); if (badge) badge.textContent = String(state[nama].items.length);
         wrap.innerHTML = '';
+        
         if (!state[nama].items.length) {
             wrap.innerHTML = `<div class="card" style="box-shadow:none; color:var(--muted);">Belum ada target. Tambah satu yuk! 🎯</div>`;
             return;
         }
-        for (const row of state[nama].items) {
+        
+        // Sort items (newest first)
+        const sorted = [...state[nama].items].sort((a, b) => (b.id || 0) - (a.id || 0));
+
+        for (const row of sorted) {
             const el = document.createElement('div'); el.className = 'card glow'; el.style.boxShadow = 'none'; el.style.cursor = 'pointer';
             el.innerHTML = `
         <div class="row between wrap">
@@ -60,16 +69,20 @@
         <div class="divider"></div>
         <div class="row between">
           <button class="btn ghost" type="button" data-del="${row.id}" style="padding:8px 12px; font-size:12px;">🗑️ Hapus</button>
-          <span class="small muted">#${row.id}</span>
+          <span class="small muted">#${row.id || 'new'}</span>
         </div>`;
+            
             el.addEventListener('click', e => {
                 if (e.target.dataset.del) return;
                 setForm(nama, row);
                 el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
-            el.querySelector('[data-del]').addEventListener('click', async e => {
+            
+            el.querySelector('[data-del]').addEventListener('click', e => {
                 e.stopPropagation();
-                await removeTarget(nama, Number(e.currentTarget.dataset.del));
+                if (confirm('Yakin mau hapus target ini?')) {
+                    removeTarget(nama, Number(e.currentTarget.dataset.del));
+                }
             });
             wrap.appendChild(el);
         }
@@ -77,17 +90,24 @@
 
     const loadOne = async nama => {
         const key = CACHE_KEY(nama);
-        try {
-            const res = await supabase().from('targets').select('*').eq('nama', nama).order('created_at', { ascending: false });
-            if (res.error) throw res.error;
-            state[nama].items = res.data || [];
-            cache.write(key, state[nama].items); setOffline(false);
-        } catch {
-            const c = cache.read(key);
-            if (c) { state[nama].items = c; setOffline(true); toast('Mode offline aktif'); }
-            else setOffline(true);
+        
+        // 1. Load Cache
+        const cached = cache.read(key);
+        if (cached) {
+            state[nama].items = cached;
+            renderList(nama);
         }
-        renderList(nama);
+
+        // 2. Fetch Remote
+        if (navigator.onLine) {
+            try {
+                const res = await supabase().from('targets').select('*').eq('nama', nama).order('created_at', { ascending: false });
+                if (res.error) throw res.error;
+                state[nama].items = res.data || [];
+                cache.write(key, state[nama].items);
+                renderList(nama);
+            } catch (e) { console.warn('Fetch targets failed', e); }
+        }
     };
 
     const loadAll = async () => { await Promise.all(PEOPLE.map(loadOne)); };
@@ -96,25 +116,69 @@
         const kategori = ($(`${nama}_kategori`)?.value || '').trim();
         const target = ($(`${nama}_target`)?.value || '').trim();
         const catatan = ($(`${nama}_catatan`)?.value || '').trim();
+        
         if (!kategori || !target) { toast('Isi kategori & target dulu ya 😊'); return; }
-        const payload = { nama, kategori, target, catatan: catatan || null };
-        if (state[nama].editingId) payload.id = state[nama].editingId;
-        try {
-            const res = await supabase().from('targets').upsert(payload);
-            if (res.error) throw res.error;
-            setOffline(false); toast('Target tersimpan! 🎯');
-            clearForm(nama); await loadOne(nama);
-        } catch { setOffline(true); toast('Koneksi bermasalah 😅 Coba lagi ya!'); }
+        
+        const isEdit = !!state[nama].editingId;
+        const tempId = isEdit ? state[nama].editingId : Date.now(); // Temp ID for optimistic
+        
+        const payload = { 
+            nama, 
+            kategori, 
+            target, 
+            catatan: catatan || null,
+            updated_at: new Date().toISOString()
+        };
+        
+        if (isEdit) payload.id = state[nama].editingId;
+        else payload.created_at = new Date().toISOString();
+
+        // Optimistic Update
+        if (isEdit) {
+            const idx = state[nama].items.findIndex(i => i.id === payload.id);
+            if (idx >= 0) state[nama].items[idx] = { ...state[nama].items[idx], ...payload };
+        } else {
+            // New item: add with temp ID (will be replaced by reload later or ignored)
+            // Ideally we wait for server ID, but for offline support we use temp ID
+            // NOTE: SyncManager upsert usually works fine, but without ID database will gen one.
+            // For true offline new items, we'd need UUIDs generated client-side.
+            // Here we assume online mostly or simple sync.
+            state[nama].items.unshift({ ...payload, id: tempId });
+        }
+        
+        cache.write(CACHE_KEY(nama), state[nama].items);
+        renderList(nama);
+        clearForm(nama);
+        toast('Target tersimpan! 🎯');
+
+        // Sync
+        if (syncManager()) {
+            // If new item, we let DB gen ID. If editing, we pass ID.
+            // Warning: If we created a new item offline, we don't have real ID. 
+            // This is a limitation of serial IDs. UUIDs are better for offline.
+            // For now, we sync payload. If ID missing, DB creates new.
+            // We strip temp ID if it's large (timestamp)
+            if (!isEdit && payload.id > 2000000000) delete payload.id; 
+            
+            syncManager().add('targets', payload, `target:${nama}:${tempId}`);
+            
+            // Reload after a delay to get real IDs if online
+            if (navigator.onLine) setTimeout(() => loadOne(nama), 2000);
+        }
     };
 
-    const removeTarget = async (nama, id) => {
-        try {
-            const res = await supabase().from('targets').delete().eq('id', id);
-            if (res.error) throw res.error;
-            setOffline(false); toast('Target dihapus!');
-            if (state[nama].editingId === id) clearForm(nama);
-            await loadOne(nama);
-        } catch { setOffline(true); toast('Koneksi bermasalah 😅'); }
+    const removeTarget = (nama, id) => {
+        // Optimistic Delete
+        state[nama].items = state[nama].items.filter(i => i.id !== id);
+        cache.write(CACHE_KEY(nama), state[nama].items);
+        renderList(nama);
+        if (state[nama].editingId === id) clearForm(nama);
+        toast('Target dihapus!');
+
+        // Sync
+        if (syncManager()) {
+            syncManager().add('targets', {}, `del_target:${id}`, 'delete', { id: id });
+        }
     };
 
     // Stars canvas

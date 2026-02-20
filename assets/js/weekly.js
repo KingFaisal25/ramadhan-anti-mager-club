@@ -80,14 +80,31 @@
             { nama: 'aa', minggu_ke: week, ...getPersonForm('aa') },
             { nama: 'bersama', minggu_ke: week, ...getSharedForm() },
         ];
+        
+        // Local Cache (Optimistic)
         cache.write(key, { neng: payloads[0], aa: payloads[1], bersama: payloads[2] });
-        try {
-            const res = await Promise.all(payloads.map(p => supabase().from('weekly_eval').upsert(p, { onConflict: 'nama,minggu_ke' })));
-            const err = res.find(x => x?.error)?.error; if (err) throw err;
-            setOffline(false); toast('Tersimpan! 💚');
-            const ns = $('nengSaved'), as = $('aaSaved'), bs = $('bersamaSaved');
-            if (ns) ns.textContent = '✅ Tersimpan'; if (as) as.textContent = '✅ Tersimpan'; if (bs) bs.textContent = '✅ Tersimpan';
-        } catch { setOffline(true); toast('Koneksi bermasalah 😅 Data disimpan lokal.'); }
+        
+        // Update UI immediately
+        setOffline(false); 
+        const ns = $('nengSaved'), as = $('aaSaved'), bs = $('bersamaSaved');
+        if (ns) ns.textContent = '✅ Tersimpan'; 
+        if (as) as.textContent = '✅ Tersimpan'; 
+        if (bs) bs.textContent = '✅ Tersimpan';
+
+        // Sync Queue
+        if (window.SyncManager) {
+            payloads.forEach(p => {
+                window.SyncManager.add('weekly_eval', p, `weekly:${p.nama}:${p.minggu_ke}`);
+            });
+            toast('Tersimpan! 💚');
+        } else {
+             // Fallback
+             try {
+                const res = await Promise.all(payloads.map(p => supabase().from('weekly_eval').upsert(p, { onConflict: 'nama,minggu_ke' })));
+                const err = res.find(x => x?.error)?.error; if (err) throw err;
+                toast('Tersimpan! 💚');
+             } catch { setOffline(true); toast('Koneksi bermasalah 😅 Data disimpan lokal.'); }
+        }
     };
 
     // Stars canvas

@@ -65,9 +65,9 @@
           <button class="btn secondary" type="button" id="addItemBtn">＋ Target Personal</button>
         </div>
 
-        <!-- Progress stats -->
+        <!-- Progress stats dengan fitur tambahan -->
         <div id="statsGrid" class="grid cols-2" style="gap:12px;">
-          <!-- Neng card -->
+          <!-- Neng card dengan fitur expanded -->
           <div class="card" id="nengStatCard" style="box-shadow:none;">
             <div class="row between wrap">
               <div class="row" style="gap:10px;">
@@ -79,7 +79,10 @@
                   <div class="small muted" id="nengSub">—</div>
                 </div>
               </div>
-              <span class="badge" id="nengPts">0 pts</span>
+              <div class="row" style="gap:8px;">
+                <span class="badge" id="nengPts">0 pts</span>
+                <button class="btn-icon" id="nengExpandBtn" aria-label="Lihat detail progress Neng" title="Lihat detail">📊</button>
+              </div>
             </div>
             <div class="divider"></div>
             <div class="row between">
@@ -87,9 +90,17 @@
               <span class="badge" id="nengPct">0%</span>
             </div>
             <div class="progress" style="margin-top:10px;"><i id="nengBar"></i></div>
+            
+            <!-- Detail progress yang expandable -->
+            <div id="nengProgressDetail" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1);">
+              <div class="small muted">📊 Detail Progress:</div>
+              <div class="grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;" id="nengCategoryStats">
+                <!-- Diisi oleh JavaScript -->
+              </div>
+            </div>
           </div>
 
-          <!-- Aa card -->
+          <!-- Aa card dengan fitur expanded -->
           <div class="card" id="aaStatCard" style="box-shadow:none;">
             <div class="row between wrap">
               <div class="row" style="gap:10px;">
@@ -101,7 +112,10 @@
                   <div class="small muted" id="aaSub">—</div>
                 </div>
               </div>
-              <span class="badge" id="aaPts">0 pts</span>
+              <div class="row" style="gap:8px;">
+                <span class="badge" id="aaPts">0 pts</span>
+                <button class="btn-icon" id="aaExpandBtn" aria-label="Lihat detail progress Aa" title="Lihat detail">📊</button>
+              </div>
             </div>
             <div class="divider"></div>
             <div class="row between">
@@ -109,6 +123,44 @@
               <span class="badge" id="aaPct">0%</span>
             </div>
             <div class="progress" style="margin-top:10px;"><i id="aaBar"></i></div>
+            
+            <!-- Detail progress yang expandable -->
+            <div id="aaProgressDetail" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1);">
+              <div class="small muted">📊 Detail Progress:</div>
+              <div class="grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;" id="aaCategoryStats">
+                <!-- Diisi oleh JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick actions dan summary -->
+        <div class="card" style="margin-top:12px; background:rgba(255,253,245,0.03);">
+          <div class="row between wrap">
+            <div>
+              <div class="small muted">⚡ Quick Actions</div>
+              <div style="font-weight:600;font-size:14px;">Akses Cepat</div>
+            </div>
+            <div class="row" style="gap:8px;">
+              <button class="btn secondary small" id="markAllBtn" title="Tandai semua sebagai selesai">✅ Semua</button>
+              <button class="btn secondary small" id="unmarkAllBtn" title="Reset semua checklist">🔄 Reset</button>
+              <button class="btn secondary small" id="exportBtn" title="Export progress">📤 Export</button>
+            </div>
+          </div>
+          <div class="divider" style="margin:10px 0;"></div>
+          <div class="grid cols-3" style="gap:8px;" id="quickStats">
+            <div class="text-center">
+              <div class="small muted">Total Points</div>
+              <div style="font-weight:700;" id="totalPoints">0</div>
+            </div>
+            <div class="text-center">
+              <div class="small muted">Completed</div>
+              <div style="font-weight:700;" id="totalCompleted">0/54</div>
+            </div>
+            <div class="text-center">
+              <div class="small muted">Streak</div>
+              <div style="font-weight:700;" id="currentStreak">0 days</div>
+            </div>
           </div>
         </div>
       </section>
@@ -125,6 +177,7 @@
 
   <script src="config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/sync-manager.js"></script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/checklist.js"></script>
   <script src="assets/js/music-client.js"></script>

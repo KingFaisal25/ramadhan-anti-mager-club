@@ -33,6 +33,9 @@
         return new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
     };
 
+    // ── Sync Engine ───────────────────────────────────────────
+    const syncManager = () => window.SyncManager;
+
     // ── Render notes list ─────────────────────────────────────
     const renderNotes = () => {
         const inbox = state.notes.filter(n => n.untuk === state.viewing);
@@ -49,21 +52,22 @@
 
         wrap.innerHTML = list.map(n => {
             const isUnread = tab === 'inbox' && !n.dibaca;
-            return `<div class="card note-card${isUnread ? ' note-unread' : ''}${n.dibaca ? '' : ' glow'}" data-id="${n.id}">
+            const isTemp = n.isTemp;
+            return `<div class="card note-card${isUnread ? ' note-unread' : ''}${n.dibaca ? '' : ' glow'}" data-id="${n.id}" style="${isTemp ? 'opacity: 0.7;' : ''}">
         <div class="row between wrap">
           <div class="row" style="gap:10px;">
             <span style="font-size:22px;">${n.dari === 'neng' ? '👩' : '👨'}</span>
             <div>
               <div style="font-weight:900; font-size:14px;">${n.dari === 'neng' ? 'Neng' : 'Aa'} → ${n.untuk === 'neng' ? 'Neng' : 'Aa'}</div>
-              <div class="small muted">${formatTime(n.created_at)}</div>
+              <div class="small muted">${formatTime(n.created_at)} ${isTemp ? '(Mengirim...)' : ''}</div>
             </div>
           </div>
           ${isUnread ? '<span class="badge" style="background:rgba(251,113,133,.25);border-color:rgba(251,113,133,.4);">💌 Baru</span>' : ''}
         </div>
         <div class="divider"></div>
         <div class="note-text">${esc(n.pesan)}</div>
-        ${tab === 'inbox' && isUnread ? `<button class="btn secondary" type="button" data-read="${n.id}" style="margin-top:12px;font-size:12px;padding:8px 12px;">✅ Tandai dibaca</button>` : ''}
-        ${tab === 'outbox' ? `<button class="btn ghost" type="button" data-delete="${n.id}" style="margin-top:12px;font-size:12px;padding:8px 12px;">🗑️ Hapus</button>` : ''}
+        ${tab === 'inbox' && isUnread && !isTemp ? `<button class="btn secondary" type="button" data-read="${n.id}" style="margin-top:12px;font-size:12px;padding:8px 12px;">✅ Tandai dibaca</button>` : ''}
+        ${tab === 'outbox' && !isTemp ? `<button class="btn ghost" type="button" data-delete="${n.id}" style="margin-top:12px;font-size:12px;padding:8px 12px;">🗑️ Hapus</button>` : ''}
       </div>`;
         }).join('');
 
@@ -71,23 +75,37 @@
         wrap.querySelectorAll('[data-read]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = Number(btn.dataset.read);
-                try {
-                    await supabase().from('love_notes').update({ dibaca: true }).eq('id', id);
-                    const note = state.notes.find(n => n.id === id);
-                    if (note) note.dibaca = true;
-                    updateUnreadBadge();
-                    renderNotes();
-                } catch { toast('Gagal update 😅'); }
+                // Optimistic Update
+                const note = state.notes.find(n => n.id === id);
+                if (note) note.dibaca = true;
+                updateUnreadBadge();
+                renderNotes();
+
+                // Sync
+                if (syncManager()) {
+                    syncManager().add('love_notes', { dibaca: true }, `read:${id}`, 'update', { id: id });
+                } else {
+                    try {
+                        await supabase().from('love_notes').update({ dibaca: true }).eq('id', id);
+                    } catch { toast('Gagal update 😅'); }
+                }
             });
         });
         wrap.querySelectorAll('[data-delete]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = Number(btn.dataset.delete);
-                try {
-                    await supabase().from('love_notes').delete().eq('id', id);
-                    state.notes = state.notes.filter(n => n.id !== id);
-                    renderNotes(); toast('Pesan dihapus');
-                } catch { toast('Gagal hapus 😅'); }
+                // Optimistic Update
+                state.notes = state.notes.filter(n => n.id !== id);
+                renderNotes(); toast('Pesan dihapus');
+
+                // Sync
+                if (syncManager()) {
+                    syncManager().add('love_notes', {}, `del_note:${id}`, 'delete', { id: id });
+                } else {
+                    try {
+                        await supabase().from('love_notes').delete().eq('id', id);
+                    } catch { toast('Gagal hapus 😅'); }
+                }
             });
         });
     };
@@ -108,18 +126,27 @@
         if (pesan.length > 500) { toast('Pesan maksimal 500 karakter'); return; }
 
         const btn = $('sendBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Mengirim…'; }
-        try {
-            const { data, error } = await supabase().from('love_notes').insert(
-                { dari, untuk, pesan, dibaca: false }
-            ).select().single();
-            if (error) throw error;
-            state.notes.unshift(data);
-            const inp = $('noteText'); if (inp) inp.value = '';
-            const ctr = $('charCount'); if (ctr) ctr.textContent = '0/500';
-            toast(`💌 Pesan terkirim ke ${untuk === 'neng' ? 'Neng' : 'Aa'}!`);
-            renderNotes();
-        } catch { toast('Koneksi bermasalah 😅'); }
-        finally { if (btn) { btn.disabled = false; btn.textContent = '💌 Kirim Pesan'; } }
+        
+        // Optimistic Update
+        const tempId = Date.now();
+        const payload = { dari, untuk, pesan, dibaca: false, created_at: new Date().toISOString() };
+        state.notes.unshift({ ...payload, id: tempId, isTemp: true });
+        
+        const inp = $('noteText'); if (inp) inp.value = '';
+        const ctr = $('charCount'); if (ctr) ctr.textContent = '0/500';
+        toast(`💌 Pesan terkirim ke ${untuk === 'neng' ? 'Neng' : 'Aa'}!`);
+        renderNotes();
+
+        // Sync
+        if (syncManager()) {
+            syncManager().add('love_notes', payload, `note:${tempId}`);
+        } else {
+            try {
+                await supabase().from('love_notes').insert(payload);
+            } catch { toast('Koneksi bermasalah 😅'); }
+        }
+        
+        if (btn) { btn.disabled = false; btn.textContent = '💌 Kirim Pesan'; }
     };
 
     // ── Load ──────────────────────────────────────────────────
@@ -127,7 +154,11 @@
         try {
             const { data, error } = await supabase().from('love_notes').select('*').order('created_at', { ascending: false });
             if (error) throw error;
-            state.notes = data || [];
+            
+            // Merge with existing temp notes
+            const tempNotes = state.notes.filter(n => n.isTemp);
+            state.notes = [...tempNotes, ...(data || [])];
+            
             updateUnreadBadge();
             renderNotes();
         } catch {
@@ -141,13 +172,41 @@
         supabase().channel('ramc-notes-live')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'love_notes' }, payload => {
                 const n = payload.new;
-                state.notes.unshift(n);
-                if (n.untuk === state.viewing) {
-                    toast(`💌 Ada pesan baru dari ${n.dari === 'neng' ? 'Neng' : 'Aa'}!`);
-                    updateUnreadBadge();
+                
+                // Deduplicate: Check if we have a matching temp note
+                const tempIdx = state.notes.findIndex(item => 
+                    item.isTemp && 
+                    item.pesan === n.pesan && 
+                    item.dari === n.dari && 
+                    Math.abs(new Date(item.created_at) - new Date(n.created_at)) < 10000
+                );
+
+                if (tempIdx !== -1) {
+                    // Replace temp note with real note
+                    state.notes[tempIdx] = n;
+                } else {
+                    state.notes.unshift(n);
+                    if (n.untuk === state.viewing) {
+                        toast(`💌 Ada pesan baru dari ${n.dari === 'neng' ? 'Neng' : 'Aa'}!`);
+                        updateUnreadBadge();
+                    }
                 }
                 renderNotes();
-            }).subscribe();
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'love_notes' }, payload => {
+                const n = payload.new;
+                const idx = state.notes.findIndex(item => item.id === n.id);
+                if (idx !== -1) {
+                    state.notes[idx] = { ...state.notes[idx], ...n };
+                    renderNotes();
+                }
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'love_notes' }, payload => {
+                const old = payload.old;
+                state.notes = state.notes.filter(item => item.id !== old.id);
+                renderNotes();
+            })
+            .subscribe();
     };
 
     // ── Init ──────────────────────────────────────────────────

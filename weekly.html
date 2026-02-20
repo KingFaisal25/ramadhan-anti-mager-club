@@ -157,9 +157,71 @@
 
         <div class="divider"></div>
 
+        <!-- Analytics dan Insights -->
+        <div class="card" style="margin-top:16px; background:rgba(255,253,245,0.03);">
+          <div class="row between wrap">
+            <div>
+              <div class="small muted">📈 Analytics Minggu Ini</div>
+              <div style="font-weight:600;font-size:14px;">Progress & Insights</div>
+            </div>
+            <button class="btn secondary small" id="toggleAnalyticsBtn">📊 Tampilkan Analytics</button>
+          </div>
+          
+          <div id="analyticsContent" style="display:none; margin-top:12px;">
+            <div class="grid cols-2" style="gap:12px;">
+              <div class="text-center">
+                <div class="small muted">Completion Rate</div>
+                <div style="font-size:24px;font-weight:700;" id="completionRate">0%</div>
+                <div class="progress" style="margin-top:6px;height:6px;">
+                  <i style="width:0%;background:linear-gradient(90deg, #10b981, #22c55e);"></i>
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="small muted">Consistency Score</div>
+                <div style="font-size:24px;font-weight:700;" id="consistencyScore">0%</div>
+                <div class="progress" style="margin-top:6px;height:6px;">
+                  <i style="width:0%;background:linear-gradient(90deg, #3b82f6, #6366f1);"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="divider" style="margin:12px 0;"></div>
+            
+            <div class="grid" style="gap:8px;">
+              <div class="small muted">🎯 Top Achievements:</div>
+              <div id="topAchievements" style="font-size:13px;line-height:1.4;">
+                <div class="muted">Belum ada data achievement</div>
+              </div>
+            </div>
+            
+            <div class="divider" style="margin:12px 0;"></div>
+            
+            <div class="grid" style="gap:8px;">
+              <div class="small muted">💡 Suggestions:</div>
+              <div id="weeklySuggestions" style="font-size:13px;line-height:1.4;color:rgba(255,253,245,0.7);">
+                <div>• Fokus pada ibadah yang konsisten</div>
+                <div>• Tingkatkan kualitas hubungan</div>
+                <div>• Jaga konsistensi doa bersama</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Export dan Share -->
         <div class="row between wrap" style="gap:10px;">
-          <button class="btn secondary" type="button" id="reloadBtn">🔄 Reload</button>
+          <div class="row" style="gap:8px;">
+            <button class="btn secondary" type="button" id="reloadBtn">🔄 Reload</button>
+            <button class="btn secondary" type="button" id="exportPdfBtn">📄 Export PDF</button>
+            <button class="btn secondary" type="button" id="shareBtn">📤 Share</button>
+          </div>
           <button class="btn" type="button" id="saveBtn">💾 Simpan Sekarang</button>
+        </div>
+        
+        <!-- Notification untuk autosave -->
+        <div id="autosaveStatus" class="small muted" style="text-align:center;margin-top:8px;display:none;">
+          <span class="badge" style="background:rgba(34,197,94,0.2);color:#22c55e;">✓ Tersimpan otomatis</span>
         </div>
       </section>
     </div>
@@ -169,6 +231,7 @@
 
   <script src="config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/sync-manager.js"></script>
   <script src="assets/js/weekly.js"></script>
   <script src="assets/js/music-client.js"></script>
 </body>
