@@ -42,7 +42,7 @@
     </div>
   </header>
 
-  <audio id="bgMusic" loop src="assets/audio/bg-music.mp4" style="display:none;"></audio>
+  <audio id="bgMusic" loop autoplay src="assets/audio/bg-music.mp4" style="display:none;"></audio>
 
   <main class="app">
     <div class="container">
@@ -240,33 +240,43 @@
 
       let isPlaying = false;
 
-      const toggle = () => {
+      const playMusic = () => {
+        music.play().then(() => {
+          isPlaying = true;
+          btn.textContent = '🎵';
+          btn.classList.remove('muted');
+        }).catch(e => {
+          console.log('Autoplay blocked by browser policy');
+          isPlaying = false;
+          btn.textContent = '🔇';
+          btn.classList.add('muted');
+        });
+      };
+
+      // 1. Attempt immediate play
+      window.addEventListener('DOMContentLoaded', playMusic);
+      playMusic(); // Direct attempt
+
+      // 2. Music Toggle button
+      btn.addEventListener('click', () => {
         if (isPlaying) {
           music.pause();
           btn.textContent = '🔇';
           btn.classList.add('muted');
         } else {
-          music.play().catch(e => console.log('Autoplay blocked'));
+          music.play();
           btn.textContent = '🎵';
           btn.classList.remove('muted');
         }
         isPlaying = !isPlaying;
-      };
+      });
 
-      btn.addEventListener('click', toggle);
-
-      // Try to play on first interaction (click/touch)
+      // 3. Fallback: play on first interaction (if autoplay blocked)
       const firstPlay = () => {
-        if (!isPlaying) {
-          music.play().then(() => {
-            isPlaying = true;
-            btn.textContent = '🎵';
-          }).catch(e => console.log('Autoplay still blocked or failed'));
-        }
+        if (!isPlaying) playMusic();
         document.removeEventListener('click', firstPlay);
         document.removeEventListener('touchstart', firstPlay);
       };
-
       document.addEventListener('click', firstPlay);
       document.addEventListener('touchstart', firstPlay);
     })();
