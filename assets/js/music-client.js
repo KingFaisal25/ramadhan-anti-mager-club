@@ -1,8 +1,10 @@
 /**
- * Background Music Client
+ * Background Music Client with Persistence
  * Ramadhan Anti Mager Club 🌙
  */
 (function () {
+    const STORAGE_KEY = 'ramc_music_pos';
+
     // 1. Create Audio Element if not exists
     let music = document.getElementById('bgMusic');
     if (!music) {
@@ -15,10 +17,15 @@
         document.body.appendChild(music);
     }
 
+    // 2. Restore Position
+    const savedPos = localStorage.getItem(STORAGE_KEY);
+    if (savedPos) {
+        music.currentTime = parseFloat(savedPos);
+    }
+
     let isPlaying = false;
 
     const playMusic = () => {
-        // Attempt to play
         music.play().then(() => {
             isPlaying = true;
         }).catch(e => {
@@ -27,11 +34,23 @@
         });
     };
 
-    // 2. Try to play immediately
+    // 3. Periodic Position Save
+    music.addEventListener('timeupdate', () => {
+        if (music.currentTime > 0) {
+            localStorage.setItem(STORAGE_KEY, music.currentTime);
+        }
+    });
+
+    // Save on page change/refresh
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem(STORAGE_KEY, music.currentTime);
+    });
+
+    // 4. Try to play immediately
     window.addEventListener('DOMContentLoaded', playMusic);
     playMusic();
 
-    // 3. Fallback: play on first user interaction
+    // 5. Fallback: play on first user interaction
     const firstPlay = () => {
         if (!isPlaying) playMusic();
         document.removeEventListener('click', firstPlay);
@@ -40,8 +59,4 @@
 
     document.addEventListener('click', firstPlay);
     document.addEventListener('touchstart', firstPlay);
-
-    // 4. Persistence handling (Optional: resume from last time if possible)
-    // Note: Standard MPA will always restart the track. 
-    // We could use localStorage.setItem('music_pos', music.currentTime) if needed.
 })();
