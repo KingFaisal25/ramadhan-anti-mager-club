@@ -34,12 +34,15 @@
         </div>
         <a class="btn secondary" href="checklist.html" aria-label="Checklist">✅</a>
         <a class="btn secondary" href="leaderboard.html" aria-label="Leaderboard">🏆</a>
+        <button type="button" class="btn secondary" id="musicToggle" aria-label="Musik">🎵</button>
         <a class="btn secondary" href="notes.html" id="notesBell" style="position:relative;"
           aria-label="Love Notes">💌<span id="notesUnread"
             style="display:none;position:absolute;top:-5px;right:-5px;background:rgba(251,113,133,.9);border-radius:999px;font-size:9px;font-weight:900;padding:2px 5px;color:#fff;">?</span></a>
       </div>
     </div>
   </header>
+
+  <audio id="bgMusic" loop src="assets/audio/bg-music.mp4" style="display:none;"></audio>
 
   <main class="app">
     <div class="container">
@@ -227,6 +230,45 @@
       const total = (obj.neng || 0) + (obj.aa || 0);
       const el = document.getElementById('notesUnread');
       if (el && total > 0) { el.textContent = total; el.style.display = 'inline'; }
+    })();
+
+    // Background Music Logic
+    (function () {
+      const music = document.getElementById('bgMusic');
+      const btn = document.getElementById('musicToggle');
+      if (!music || !btn) return;
+
+      let isPlaying = false;
+
+      const toggle = () => {
+        if (isPlaying) {
+          music.pause();
+          btn.textContent = '🔇';
+          btn.classList.add('muted');
+        } else {
+          music.play().catch(e => console.log('Autoplay blocked'));
+          btn.textContent = '🎵';
+          btn.classList.remove('muted');
+        }
+        isPlaying = !isPlaying;
+      };
+
+      btn.addEventListener('click', toggle);
+
+      // Try to play on first interaction (click/touch)
+      const firstPlay = () => {
+        if (!isPlaying) {
+          music.play().then(() => {
+            isPlaying = true;
+            btn.textContent = '🎵';
+          }).catch(e => console.log('Autoplay still blocked or failed'));
+        }
+        document.removeEventListener('click', firstPlay);
+        document.removeEventListener('touchstart', firstPlay);
+      };
+
+      document.addEventListener('click', firstPlay);
+      document.addEventListener('touchstart', firstPlay);
     })();
   </script>
 </body>
