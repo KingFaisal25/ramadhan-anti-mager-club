@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ramadhan Anti Mager Club 🌙 — Dashboard</title>
+  <meta name="description"
+    content="Aplikasi tracking ibadah & komitmen Ramadhan untuk Neng & Aa. Anti mager, penuh berkah! 🌙" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <canvas class="bg-canvas" id="starsCanvas" aria-hidden="true"></canvas>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark keychain" aria-hidden="true">🌙</div>
+        <div class="title">
+          <div style="font-size:16px;">Ramadhan Anti Mager Club</div>
+          <small id="dayLabel">Hari ke-</small>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="seg" id="nameSeg" aria-label="Pilih orang">
+          <button type="button" class="seg-btn" data-nama="neng">👩 Neng</button>
+          <button type="button" class="seg-btn" data-nama="aa">👨 Aa</button>
+        </div>
+        <a class="btn secondary" href="checklist.html" aria-label="Checklist">✅</a>
+        <a class="btn secondary" href="leaderboard.html" aria-label="Leaderboard">🏆</a>
+        <a class="btn secondary" href="notes.html" id="notesBell" style="position:relative;"
+          aria-label="Love Notes">💌<span id="notesUnread"
+            style="display:none;position:absolute;top:-5px;right:-5px;background:rgba(251,113,133,.9);border-radius:999px;font-size:9px;font-weight:900;padding:2px 5px;color:#fff;">?</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="container">
+      <section class="grid cols-2">
+        <!-- LEFT COLUMN -->
+        <div class="grid" style="gap:14px;">
+          <!-- Greeting card -->
+          <div class="card glow">
+            <div class="row between wrap">
+              <div>
+                <div class="pill" id="greetingPill">Assalamu'alaikum 🌸</div>
+                <h1 class="h1" style="margin-top:10px;">Dashboard Utama</h1>
+                <div class="subtle" id="dateSub">—</div>
+              </div>
+              <div class="row wrap" style="gap:10px;">
+                <a class="btn secondary" href="weekly.html">📅 Weekly</a>
+                <a class="btn secondary" href="target.html">🎯 Target</a>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Buka puasa countdown -->
+            <div class="row between wrap">
+              <div>
+                <div class="pill">⏳ HARI INI</div>
+                <div class="small muted" id="iftarSub" style="margin-top:10px;">Countdown buka puasa (Jakarta)</div>
+              </div>
+              <span class="badge" id="iftarCountdown" style="font-size:18px; padding:10px 14px;">00:00:00</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Jadwal sholat -->
+            <div id="sholatSchedule"
+              style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px;">
+              <!-- filled by JS -->
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Progress Neng & Aa -->
+            <div class="kpi">
+              <div class="box">
+                <div class="label">👩 Neng (hari ini)</div>
+                <div class="value" id="nengPct">0%</div>
+              </div>
+              <div class="box">
+                <div class="label">👨 Aa (hari ini)</div>
+                <div class="value" id="aaPct">0%</div>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div class="row between">
+                <span class="muted">Komparasi poin hari ini</span>
+                <span class="badge" id="todayWinner">—</span>
+              </div>
+              <div class="progress" style="margin-top:10px;"><i id="todayBar"></i></div>
+              <div class="small muted" id="todaySub" style="margin-top:8px;">—</div>
+            </div>
+          </div>
+
+          <!-- 😊 Mood Meter card -->
+          <div class="card glow">
+            <div class="pill">😊 Semangat Hari Ini</div>
+            <div style="font-weight:900;font-size:16px;margin-top:10px;">Rate semangat ibadah kalian</div>
+            <div class="divider"></div>
+            <div style="margin-bottom:14px;">
+              <div class="small muted" style="margin-bottom:8px;">👩 Neng</div>
+              <div id="moodNengWrap"></div>
+            </div>
+            <div>
+              <div class="small muted" style="margin-bottom:8px;">👨 Aa</div>
+              <div id="moodAaWrap"></div>
+            </div>
+          </div>
+
+          <!-- Quick action card -->
+          <div class="card glow">
+            <div class="row between wrap">
+              <div>
+                <div class="pill">⚡ Aksi Cepat</div>
+                <div style="font-weight:900; font-size:16px; margin-top:10px;">Isi checklist untuk</div>
+                <div class="subtle" id="activeNameLabel">—</div>
+              </div>
+              <span class="badge" id="activeNameBadge">—</span>
+            </div>
+            <div class="divider"></div>
+            <a class="btn block" href="checklist.html" id="checklistBtn">✅ Isi Checklist Hari Ini</a>
+            <div class="quote" id="dailyQuote" style="margin-top:14px;">—</div>
+            <div class="divider"></div>
+            <div class="card" id="togetherBanner"
+              style="display:none; box-shadow:none; border-radius:16px; padding:14px; border-color:rgba(34,197,94,.28); background:rgba(34,197,94,.16);">
+              <div style="font-weight:900; font-size:16px;">Masya Allah! Kalian kompak! 🎉</div>
+              <div class="small" style="margin-top:6px; opacity:.9;">Neng &amp; Aa sama-sama 100% hari ini. Barakallah!
+                💚</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="grid" style="gap:14px;">
+          <!-- Month summary -->
+          <div class="card glow">
+            <div class="row between wrap">
+              <div>
+                <div class="pill">📈 Ringkasan Bulan Ini</div>
+                <div style="font-weight:900; font-size:16px; margin-top:10px;">Total poin &amp; rata-rata</div>
+                <div class="subtle" id="monthSub">—</div>
+              </div>
+              <span class="badge" id="monthWinner">—</span>
+            </div>
+            <div class="divider"></div>
+            <div class="kpi">
+              <div class="box">
+                <div class="label">Total poin Neng</div>
+                <div class="value" id="nengMonthPts">0</div>
+              </div>
+              <div class="box">
+                <div class="label">Total poin Aa</div>
+                <div class="value" id="aaMonthPts">0</div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="kpi">
+              <div class="box">
+                <div class="label">Rata-rata Neng</div>
+                <div class="value" id="nengAvg">0%</div>
+              </div>
+              <div class="box">
+                <div class="label">Rata-rata Aa</div>
+                <div class="value" id="aaAvg">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live card -->
+          <div class="card glow">
+            <div class="row between wrap">
+              <div>
+                <div class="pill">🔴 Live</div>
+                <div style="font-weight:900; font-size:16px; margin-top:10px;">Update real-time</div>
+                <div class="subtle">Notifikasi saat ada progress baru</div>
+              </div>
+              <span class="badge" id="netBadge" style="display:none;">Offline</span>
+            </div>
+            <div class="divider"></div>
+            <div class="small muted" id="liveHint">Memuat…</div>
+          </div>
+
+          <!-- Nav shortcuts -->
+          <div class="card glow">
+            <div class="pill" style="margin-bottom:12px;">🔗 Navigasi</div>
+            <div class="grid" style="gap:10px;">
+              <a class="btn secondary block" href="checklist.html">✅ Checklist Harian</a>
+              <a class="btn secondary block" href="leaderboard.html">🏆 Papan Anti-Mager</a>
+              <a class="btn secondary block" href="calendar.html">📅 Kalender Streak</a>
+              <a class="btn secondary block" href="notes.html">💌 Love Notes</a>
+              <a class="btn secondary block" href="achievements.html">🏅 Achievements</a>
+              <a class="btn secondary block" href="weekly.html">📋 Evaluasi Mingguan</a>
+              <a class="btn secondary block" href="target.html">🎯 Target Ramadhan</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript>Aktifkan JavaScript untuk menggunakan aplikasi ini.</noscript>
+
+  <!-- Scripts (no ES module, sequential) -->
+  <script src="config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/mood.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+  <script>
+    // Show unread notes badge
+    (function () {
+      const raw = localStorage.getItem('ramc_notes_unread');
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      const total = (obj.neng || 0) + (obj.aa || 0);
+      const el = document.getElementById('notesUnread');
+      if (el && total > 0) { el.textContent = total; el.style.display = 'inline'; }
+    })();
+  </script>
+</body>
+
+</html>

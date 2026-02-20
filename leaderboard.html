@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard • Ramadhan Anti Mager Club 🌙</title>
+  <meta name="description" content="Papan Anti-Mager — siapa yang lebih rajin, Neng atau Aa?" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <canvas class="bg-canvas" id="starsCanvas" aria-hidden="true"></canvas>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">🏆</div>
+        <div class="title">
+          <div style="font-size:16px;">Papan Anti-Mager!</div>
+          <small id="dayLabel">Hari ke-</small>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="index.html" aria-label="Dashboard">🏠</a>
+        <a class="btn secondary" href="checklist.html" aria-label="Checklist">✅</a>
+        <a class="btn secondary" href="calendar.html" aria-label="Kalender">📅</a>
+        <a class="btn secondary" href="achievements.html" aria-label="Achievements">🏅</a>
+        <span class="badge" id="netBadge" style="display:none;">Offline</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="container">
+
+      <!-- Header card -->
+      <section class="card glow">
+        <div class="row between wrap">
+          <div>
+            <div class="pill">🏆 Papan Anti-Mager!</div>
+            <h1 class="h1" style="margin-top:10px;">Neng vs Aa</h1>
+            <div class="subtle">Auto-update real-time • Statistik lengkap 30 hari</div>
+          </div>
+          <div class="row wrap" style="gap:10px;">
+            <button class="btn secondary" type="button" id="shareBtn" style="font-size:13px;">📤 Share Progress</button>
+            <span class="badge" id="winnerBadge" style="font-size:14px; padding:10px 14px;">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Duel hari ini -->
+      <section class="card glow" style="margin-top:14px;">
+        <div class="pill">⚔️ DUEL HARI INI ⚔️</div>
+        <div class="grid cols-2" style="margin-top:12px; gap:12px;">
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👩 Neng</div>
+              <div class="badge" id="duelNengPct">0%</div>
+            </div>
+            <div class="small muted" style="margin-top:10px;" id="duelNengDone">0/27 kegiatan</div>
+            <div class="small muted" style="margin-top:6px;" id="duelNengPts">0 poin</div>
+          </div>
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👨 Aa</div>
+              <div class="badge" id="duelAaPct">0%</div>
+            </div>
+            <div class="small muted" style="margin-top:10px;" id="duelAaDone">0/27 kegiatan</div>
+            <div class="small muted" style="margin-top:6px;" id="duelAaPts">0 poin</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row between wrap">
+          <div style="font-weight:900;font-size:16px;" id="duelWinner">—</div>
+          <div class="small muted" id="duelDiff">—</div>
+        </div>
+      </section>
+
+      <!-- Stats cards -->
+      <section class="grid cols-2" style="margin-top:14px; gap:14px;">
+        <!-- Neng -->
+        <div class="card glow">
+          <div class="row between wrap">
+            <div class="row" style="gap:12px;">
+              <div
+                style="width:44px;height:44px;border-radius:16px;display:grid;place-items:center;background:rgba(255,253,245,.06);border:1px solid rgba(245,158,11,.18);font-size:20px;">
+                👩</div>
+              <div>
+                <div style="font-weight:900;font-size:16px;">Neng</div>
+                <div class="small muted">Statistik total</div>
+              </div>
+            </div>
+            <div class="badge" id="nengTotalPts">0 pts</div>
+          </div>
+          <div class="divider"></div>
+          <div class="kpi">
+            <div class="box">
+              <div class="label">Rata-rata completion</div>
+              <div class="value" id="nengAvg">0%</div>
+            </div>
+            <div class="box">
+              <div class="label">Streak terpanjang</div>
+              <div class="value" id="nengBestStreak">0 hari</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="margin-bottom:8px;">
+            <div class="small muted">✅ Item favorit</div>
+            <div style="font-weight:700;font-size:13px;margin-top:4px;" id="nengFav">—</div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div class="small muted">😅 Sering di-skip</div>
+            <div style="font-weight:700;font-size:13px;margin-top:4px;" id="nengSkip">—</div>
+          </div>
+          <div class="divider"></div>
+          <div class="small muted" style="margin-bottom:8px;">🏅 Badge</div>
+          <div class="row wrap" style="gap:8px;" id="nengBadges"></div>
+        </div>
+
+        <!-- Aa -->
+        <div class="card glow">
+          <div class="row between wrap">
+            <div class="row" style="gap:12px;">
+              <div
+                style="width:44px;height:44px;border-radius:16px;display:grid;place-items:center;background:rgba(255,253,245,.06);border:1px solid rgba(245,158,11,.18);font-size:20px;">
+                👨</div>
+              <div>
+                <div style="font-weight:900;font-size:16px;">Aa</div>
+                <div class="small muted">Statistik total</div>
+              </div>
+            </div>
+            <div class="badge" id="aaTotalPts">0 pts</div>
+          </div>
+          <div class="divider"></div>
+          <div class="kpi">
+            <div class="box">
+              <div class="label">Rata-rata completion</div>
+              <div class="value" id="aaAvg">0%</div>
+            </div>
+            <div class="box">
+              <div class="label">Streak terpanjang</div>
+              <div class="value" id="aaBestStreak">0 hari</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="margin-bottom:8px;">
+            <div class="small muted">✅ Item favorit</div>
+            <div style="font-weight:700;font-size:13px;margin-top:4px;" id="aaFav">—</div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div class="small muted">😅 Sering di-skip</div>
+            <div style="font-weight:700;font-size:13px;margin-top:4px;" id="aaSkip">—</div>
+          </div>
+          <div class="divider"></div>
+          <div class="small muted" style="margin-bottom:8px;">🏅 Badge</div>
+          <div class="row wrap" style="gap:8px;" id="aaBadges"></div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="card glow" style="margin-top:14px;">
+        <div class="row between wrap">
+          <div>
+            <div class="pill">📊 Grafik Poin 30 Hari</div>
+            <div style="font-weight:900;font-size:16px;margin-top:10px;">Perjalanan Ramadhan kalian</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="grid" style="gap:14px;">
+          <div class="card" style="box-shadow:none;">
+            <div class="small muted" style="margin-bottom:10px;">📊 Poin per hari (bar chart)</div>
+            <canvas id="pointsChart" height="150"></canvas>
+          </div>
+          <div class="card" style="box-shadow:none;">
+            <div class="small muted" style="margin-bottom:10px;">📈 Poin kumulatif (line chart)</div>
+            <canvas id="weeklyChart" height="150"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fun stats -->
+      <section class="card glow" style="margin-top:14px;">
+        <div class="pill">🎲 Fun Stats</div>
+        <div class="divider"></div>
+        <div class="kpi">
+          <div class="box">
+            <div class="label">👩 Hari Neng lebih anti-mager</div>
+            <div class="value" id="funNengWins">0</div>
+          </div>
+          <div class="box">
+            <div class="label">👨 Hari Aa lebih anti-mager</div>
+            <div class="value" id="funAaWins">0</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi">
+          <div class="box">
+            <div class="label">🤝 Hari seri/kompak</div>
+            <div class="value" id="funDraws">0</div>
+          </div>
+          <div class="box">
+            <div class="label">🌟 Hari paling produktif</div>
+            <div class="value" id="funBestDays" style="font-size:12px;">—</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/leaderboard.js"></script>
+</body>
+
+</html>

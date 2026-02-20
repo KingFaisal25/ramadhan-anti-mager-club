@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluasi Mingguan • Ramadhan Anti Mager Club 🌙</title>
+  <meta name="description" content="Evaluasi & refleksi mingguan Neng & Aa di Ramadhan Anti Mager Club" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <canvas class="bg-canvas" id="starsCanvas" aria-hidden="true"></canvas>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark keychain" aria-hidden="true">🌙</div>
+        <div class="title">
+          <div style="font-size:16px;">📅 Evaluasi Mingguan</div>
+          <small id="subTitle">Minggu ke-</small>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="index.html">🏠</a>
+        <a class="btn secondary" href="checklist.html">✅</a>
+        <a class="btn secondary" href="leaderboard.html">🏆</a>
+        <span class="badge" id="netBadge" style="display:none;">Offline</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="container">
+      <section class="card glow">
+        <div class="row between wrap">
+          <div>
+            <div class="pill">Refleksi &amp; Komitmen</div>
+            <h1 class="h1" style="margin-top:10px;">Minggu ini gimana?</h1>
+            <div class="subtle">Autosave ke Supabase • Data terenkripsi</div>
+          </div>
+          <div class="row wrap" style="gap:10px;">
+            <div class="seg" id="weekSeg" aria-label="Pilih minggu">
+              <button type="button" class="seg-btn" data-week="1">Minggu 1</button>
+              <button type="button" class="seg-btn" data-week="2">Minggu 2</button>
+              <button type="button" class="seg-btn" data-week="3">Minggu 3</button>
+              <button type="button" class="seg-btn" data-week="4">Minggu 4</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Two-column form -->
+        <div class="grid cols-2" style="gap:14px;">
+          <!-- Neng -->
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👩 Neng</div>
+              <span class="badge" id="nengSaved">—</span>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" style="gap:10px;">
+              <div>
+                <label class="small muted" for="neng_ibadah_konsisten">🎯 Ibadah paling konsisten</label>
+                <textarea class="input" id="neng_ibadah_konsisten" rows="3"
+                  placeholder="Ceritakan ibadah yang konsisten ya…" style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="neng_ibadah_kurang">😔 Yang masih perlu ditingkatkan</label>
+                <textarea class="input" id="neng_ibadah_kurang" rows="3" placeholder="Jujur dengan diri sendiri…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="neng_progress_hubungan">💑 Progress hubungan minggu ini</label>
+                <textarea class="input" id="neng_progress_hubungan" rows="3" placeholder="Gimana komunikasi dengan Aa?…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="neng_hal_disyukuri">🌟 Hal paling disyukuri</label>
+                <textarea class="input" id="neng_hal_disyukuri" rows="3" placeholder="Alhamdulillah atas…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="neng_tantangan">💪 Tantangan yang dihadapi</label>
+                <textarea class="input" id="neng_tantangan" rows="3" placeholder="Ceritakan tantangannya…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="neng_resolusi">🎯 Resolusi minggu depan</label>
+                <textarea class="input" id="neng_resolusi" rows="3" placeholder="Bismillah, minggu depan akan…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aa -->
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👨 Aa</div>
+              <span class="badge" id="aaSaved">—</span>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" style="gap:10px;">
+              <div>
+                <label class="small muted" for="aa_ibadah_konsisten">🎯 Ibadah paling konsisten</label>
+                <textarea class="input" id="aa_ibadah_konsisten" rows="3"
+                  placeholder="Ceritakan ibadah yang konsisten ya…" style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="aa_ibadah_kurang">😔 Yang masih perlu ditingkatkan</label>
+                <textarea class="input" id="aa_ibadah_kurang" rows="3" placeholder="Jujur dengan diri sendiri…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="aa_progress_hubungan">💑 Progress hubungan minggu ini</label>
+                <textarea class="input" id="aa_progress_hubungan" rows="3" placeholder="Gimana komunikasi dengan Neng?…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="aa_hal_disyukuri">🌟 Hal paling disyukuri</label>
+                <textarea class="input" id="aa_hal_disyukuri" rows="3" placeholder="Alhamdulillah atas…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="aa_tantangan">💪 Tantangan yang dihadapi</label>
+                <textarea class="input" id="aa_tantangan" rows="3" placeholder="Ceritakan tantangannya…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+              <div>
+                <label class="small muted" for="aa_resolusi">🎯 Resolusi minggu depan</label>
+                <textarea class="input" id="aa_resolusi" rows="3" placeholder="Bismillah, minggu depan akan…"
+                  style="margin-top:6px;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Bersama -->
+        <div class="card" style="box-shadow:none;">
+          <div class="row between wrap">
+            <div style="font-weight:900;font-size:16px;">💑 Doa &amp; Komitmen Bersama</div>
+            <span class="badge" id="bersamaSaved">—</span>
+          </div>
+          <div class="small muted" style="margin-top:6px;">Satu tekad untuk berdua, menuju Ramadhan yang lebih berkah.
+          </div>
+          <textarea class="input" id="bersama_doa_komitmen" rows="4" style="margin-top:10px;"
+            placeholder="Bismillah, kami berkomitmen untuk…"></textarea>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row between wrap" style="gap:10px;">
+          <button class="btn secondary" type="button" id="reloadBtn">🔄 Reload</button>
+          <button class="btn" type="button" id="saveBtn">💾 Simpan Sekarang</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/weekly.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+{
+  "bucket_name": "ramadhan-app",
+  "folder_structure": {
+    "avatars/": {
+      "description": "User profile pictures",
+      "permissions": "private",
+      "max_size": "5MB",
+      "allowed_types": ["image/jpeg", "image/png", "image/webp"]
+    },
+    "achievements/": {
+      "description": "Achievement badges and icons",
+      "permissions": "public-read",
+      "max_size": "2MB",
+      "allowed_types": ["image/svg+xml", "image/png", "image/webp"]
+    },
+    "checklists/": {
+      "description": "Checklist attachments and notes",
+      "permissions": "private",
+      "max_size": "10MB",
+      "allowed_types": ["text/plain", "application/pdf", "image/*"]
+    },
+    "exports/": {
+      "description": "Exported reports and data",
+      "permissions": "private",
+      "max_size": "50MB",
+      "allowed_types": ["application/json", "text/csv", "application/pdf"]
+    },
+    "backups/": {
+      "description": "Automatic backups",
+      "permissions": "private",
+      "max_size": "100MB",
+      "retention_days": 30
+    },
+    "temp/": {
+      "description": "Temporary uploads",
+      "permissions": "private",
+      "max_size": "20MB",
+      "lifecycle_days": 1
+    }
+  },
+  "cors_configuration": [
+    {
+      "AllowedOrigins": ["http://localhost:3000", "https://*.github.io"],
+      "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+      "AllowedHeaders": ["*"],
+      "ExposeHeaders": ["ETag", "x-amz-meta-custom-header"],
+      "MaxAgeSeconds": 3000
+    }
+  ],
+  "lifecycle_policies": [
+    {
+      "id": "temp-cleanup",
+      "prefix": "temp/",
+      "expiration_days": 1
+    },
+    {
+      "id": "backup-rotation",
+      "prefix": "backups/",
+      "expiration_days": 30
+    }
+  ],
+  "versioning": {
+    "enabled": true,
+    "max_versions": 10
+  },
+  "encryption": {
+    "sse_s3_enabled": true,
+    "sse_kms_enabled": false
+  },
+  "access_policy": {
+    "public": {
+      "actions": ["s3:GetObject"],
+      "resources": ["arn:aws:s3:::ramadhan-app/achievements/*"]
+    },
+    "authenticated": {
+      "actions": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "resources": ["arn:aws:s3:::ramadhan-app/avatars/*", "arn:aws:s3:::ramadhan-app/checklists/*"]
+    }
+  }
+}

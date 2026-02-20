@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Achievements 🏅 • Ramadhan Anti Mager Club 🌙</title>
+  <meta name="description" content="Gallery pencapaian & badge Ramadhan Anti Mager Club" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    /* ── Achievement gallery ──────────────── */
+    .ach-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .ach-card {
+      border-radius: 18px;
+      border: 1px solid rgba(245, 158, 11, .22);
+      background: linear-gradient(180deg, rgba(16, 42, 27, .8), rgba(10, 26, 17, .6));
+      padding: 16px 12px;
+      text-align: center;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ach-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 158, 11, .45);
+      box-shadow: 0 20px 55px rgba(0, 0, 0, .45);
+    }
+
+    .ach-locked {
+      opacity: .55;
+      filter: grayscale(.8);
+    }
+
+    .ach-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .ach-title {
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .ach-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .ach-who {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .badge-locked {
+      opacity: .4;
+      background: rgba(255, 253, 245, .04);
+      border-color: rgba(255, 253, 245, .12);
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 253, 245, .14);
+      background: rgba(255, 253, 245, .04);
+      color: var(--cream);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 38px;
+      transition: border-color .14s, background .14s;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      border-color: rgba(245, 158, 11, .38);
+      background: rgba(245, 158, 11, .14);
+    }
+
+    /* Progress ring */
+    .progress-ring-bg {
+      fill: none;
+      stroke: rgba(255, 253, 245, .08);
+      stroke-width: 8;
+    }
+
+    .progress-ring-fill {
+      fill: none;
+      stroke: var(--gold-400);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transform-origin: center;
+      transform: rotate(-90deg);
+      transition: stroke-dashoffset 1s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+    }
+
+    .progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .progress-percent {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--cream);
+    }
+
+    .progress-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .loading-indicator {
+      text-align: center;
+      padding: 28px;
+      color: var(--muted);
+      display: none;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid rgba(245, 158, 11, .25);
+      border-top-color: var(--gold-400);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas class="bg-canvas" id="starsCanvas" aria-hidden="true"></canvas>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark keychain" aria-hidden="true">🏆</div>
+        <div class="title">
+          <div style="font-size:16px;">Achievement Gallery</div>
+          <small>Pencapaian &amp; Progress</small>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="index.html">🏠</a>
+        <a class="btn secondary" href="checklist.html">✅</a>
+        <a class="btn secondary" href="leaderboard.html">📊</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="container">
+      <!-- Hero -->
+      <section class="card glow">
+        <div class="row between wrap">
+          <div>
+            <div class="pill">🏅 Pencapaian Ramadhan</div>
+            <h1 class="h1" style="margin-top:10px;">Achievement Gallery</h1>
+            <div class="subtle">Badge terbuka otomatis dari data checklistmu</div>
+          </div>
+          <div class="progress-ring-container">
+            <svg class="progress-ring" width="120" height="120" aria-hidden="true">
+              <circle class="progress-ring-bg" cx="60" cy="60" r="54" />
+              <circle class="progress-ring-fill" cx="60" cy="60" r="54" />
+            </svg>
+            <div class="progress-text">
+              <span class="progress-percent" id="overallProgress">0%</span>
+              <span class="progress-label">Unlocked</span>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi">
+          <div class="box">
+            <div class="label">🏅 Badge terbuka</div>
+            <div class="value" id="achievementsUnlocked">0</div>
+          </div>
+          <div class="box">
+            <div class="label">🔥 Streak terpanjang</div>
+            <div class="value" id="currentStreakStat">0 hari</div>
+          </div>
+          <div class="box">
+            <div class="label">📅 Total hari</div>
+            <div class="value" id="daysCompleted">0</div>
+          </div>
+          <div class="box">
+            <div class="label">🎯 Target tercapai</div>
+            <div class="value" id="goalsAchieved">0%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filters & Grid -->
+      <section class="card glow" style="margin-top:14px;">
+        <div class="filter-bar">
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="neng">👩 Neng</button>
+            <button class="filter-btn" data-filter="aa">👨 Aa</button>
+            <button class="filter-btn" data-filter="completed">✅ Terbuka</button>
+            <button class="filter-btn" data-filter="locked">🔒 Terkunci</button>
+          </div>
+        </div>
+        <div class="loading-indicator" id="loadingIndicator">
+          <div class="spinner"></div>
+          <span>Memuat badge…</span>
+        </div>
+        <div class="ach-grid" id="achievementGrid"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/achievements.js"></script>
+</body>
+
+</html>

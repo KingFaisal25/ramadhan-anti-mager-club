@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Target Ramadhan • Ramadhan Anti Mager Club 🌙</title>
+  <meta name="description" content="Kelola target dan resolusi Ramadhan Neng & Aa" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <canvas class="bg-canvas" id="starsCanvas" aria-hidden="true"></canvas>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark keychain" aria-hidden="true">🌙</div>
+        <div class="title">
+          <div style="font-size:16px;">🎯 Target &amp; Resolusi</div>
+          <small id="subTitle">—</small>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="index.html">🏠</a>
+        <a class="btn secondary" href="checklist.html">✅</a>
+        <a class="btn secondary" href="leaderboard.html">🏆</a>
+        <span class="badge" id="netBadge" style="display:none;">Offline</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div class="container">
+      <section class="card glow">
+        <div class="row between wrap">
+          <div>
+            <div class="pill">Yang penting konsisten 💪</div>
+            <h1 class="h1" style="margin-top:10px;">Target Ramadhan</h1>
+            <div class="subtle">Tambah & edit target, tersimpan ke Supabase</div>
+          </div>
+          <div class="row" style="gap:10px;">
+            <button class="btn secondary" type="button" id="reloadBtn">🔄 Reload</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid cols-2" style="gap:14px;">
+          <!-- Neng -->
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👩 Neng</div>
+              <span class="badge" id="nengCountBadge">0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" style="gap:10px;">
+              <div>
+                <label class="small muted" for="neng_kategori">Kategori</label>
+                <input class="input" id="neng_kategori" placeholder="mis. Ibadah, Hubungan, Kesehatan, dll"
+                  style="margin-top:6px;" />
+              </div>
+              <div>
+                <label class="small muted" for="neng_target">Target / Resolusi</label>
+                <input class="input" id="neng_target" placeholder="mis. Khatam Al-Qur'an 1x selama Ramadhan"
+                  style="margin-top:6px;" />
+              </div>
+              <div>
+                <label class="small muted" for="neng_catatan">Catatan (opsional)</label>
+                <textarea class="input" id="neng_catatan" rows="2" placeholder="Detail, cara, atau motivasi…"
+                  style="margin-top:6px; min-height:auto; resize:vertical;"></textarea>
+              </div>
+              <div class="row between wrap">
+                <button class="btn ghost" type="button" id="neng_clearBtn">✕ Clear</button>
+                <button class="btn" type="button" id="neng_addBtn">✚ Tambah Target</button>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" id="neng_listWrap" style="gap:10px;"></div>
+          </div>
+
+          <!-- Aa -->
+          <div class="card" style="box-shadow:none;">
+            <div class="row between wrap">
+              <div style="font-weight:900;font-size:16px;">👨 Aa</div>
+              <span class="badge" id="aaCountBadge">0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" style="gap:10px;">
+              <div>
+                <label class="small muted" for="aa_kategori">Kategori</label>
+                <input class="input" id="aa_kategori" placeholder="mis. Ibadah, Hubungan, Kesehatan, dll"
+                  style="margin-top:6px;" />
+              </div>
+              <div>
+                <label class="small muted" for="aa_target">Target / Resolusi</label>
+                <input class="input" id="aa_target" placeholder="mis. Khatam Al-Qur'an 1x selama Ramadhan"
+                  style="margin-top:6px;" />
+              </div>
+              <div>
+                <label class="small muted" for="aa_catatan">Catatan (opsional)</label>
+                <textarea class="input" id="aa_catatan" rows="2" placeholder="Detail, cara, atau motivasi…"
+                  style="margin-top:6px; min-height:auto; resize:vertical;"></textarea>
+              </div>
+              <div class="row between wrap">
+                <button class="btn ghost" type="button" id="aa_clearBtn">✕ Clear</button>
+                <button class="btn" type="button" id="aa_addBtn">✚ Tambah Target</button>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="grid" id="aa_listWrap" style="gap:10px;"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/target.js"></script>
+</body>
+
+</html>

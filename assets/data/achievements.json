@@ -1,0 +1,66 @@
+[
+  {
+    "id": "first_day",
+    "title": "Langkah Awal",
+    "description": "Menyelesaikan semua target di hari pertama Ramadhan.",
+    "icon": "🚀",
+    "target": 1,
+    "type": "day_complete"
+  },
+  {
+    "id": "streak_3",
+    "title": "Hattrick",
+    "description": "Menyelesaikan target 3 hari berturut-turut.",
+    "icon": "🔥",
+    "target": 3,
+    "type": "streak"
+  },
+  {
+    "id": "streak_7",
+    "title": "Istiqomah Mingguan",
+    "description": "Menyelesaikan target 7 hari berturut-turut.",
+    "icon": "🛡️",
+    "target": 7,
+    "type": "streak"
+  },
+  {
+    "id": "streak_14",
+    "title": "Dua Minggu Gaspol",
+    "description": "Menyelesaikan target 14 hari berturut-turut.",
+    "icon": "⚡",
+    "target": 14,
+    "type": "streak"
+  },
+  {
+    "id": "streak_30",
+    "title": "Ramadhan Warrior",
+    "description": "Menyelesaikan target sebulan penuh tanpa putus!",
+    "icon": "👑",
+    "target": 30,
+    "type": "streak"
+  },
+  {
+    "id": "high_score_100",
+    "title": "Century Club",
+    "description": "Mencapai total poin 100 dalam satu hari.",
+    "icon": "💯",
+    "target": 100,
+    "type": "points_daily"
+  },
+  {
+    "id": "early_bird",
+    "title": "Pejuang Subuh",
+    "description": "Menyelesaikan target sahur/subuh sebelum jam 5 pagi.",
+    "icon": "🌅",
+    "target": 1,
+    "type": "special"
+  },
+  {
+    "id": "night_owl",
+    "title": "Qiyamul Lail",
+    "description": "Menyelesaikan target ibadah malam (Tarawih/Witir).",
+    "icon": "🌙",
+    "target": 1,
+    "type": "special"
+  }
+]
