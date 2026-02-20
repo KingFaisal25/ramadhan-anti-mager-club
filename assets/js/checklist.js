@@ -58,7 +58,6 @@
     progress: { neng: new Map(), aa: new Map() },
     channel: null,
     confetti: null,
-    note: { nama: null, itemId: null },
     celebratedCats: new Set(),
     lastFullDay: null,
     lastNotifKey: '',
@@ -217,13 +216,11 @@
             <span style="font-size:11px;color:rgba(255,253,245,.68);">${hasNote ? '📝 ' : ''}<span class="pts-label">+${Number(it.poin || 0)}pt</span></span>
           </button>`;
 
-        const noteBtn = (nama) => `<button type="button" class="note-btn" data-nota-nama="${nama}" data-nota-item="${escHtml(it.id)}" style="margin-top:4px;padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--cream);font-size:11px;cursor:pointer;">✏️ Catatan</button>`;
-
         // Build wrapper per person
         const mkWrapper = (nama, done, hasNote) => {
           const wrap = document.createElement('div');
           wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '4px';
-          wrap.innerHTML = mkCell(nama, done, hasNote) + noteBtn(nama);
+          wrap.innerHTML = mkCell(nama, done, hasNote);
           return wrap;
         };
 
@@ -247,15 +244,7 @@
 
       // Bind clicks
       sec.querySelectorAll('[data-nama]').forEach(cell => {
-        if (cell.dataset.nota_nama !== undefined) return; // skip note btns
         cell.addEventListener('click', e => onToggle(cell.dataset.nama, cell.dataset.item, e));
-      });
-      sec.querySelectorAll('[data-nota-nome]').forEach(btn => {
-        btn.addEventListener('click', e => { e.stopPropagation(); openNote(btn.dataset.notaNome, btn.dataset.notaItem); });
-      });
-      // Note buttons via data attrs
-      sec.querySelectorAll('[data-nota-nama]').forEach(btn => {
-        btn.addEventListener('click', e => { e.stopPropagation(); openNote(btn.dataset.notaNama, btn.dataset.notaItem); });
       });
 
       wrap.appendChild(sec);
@@ -295,32 +284,6 @@
       render(); setOffline(true);
       toast('Koneksi bermasalah 😅 Data disimpan lokal dulu ya!');
     }
-  };
-
-  // ── Note modal ────────────────────────────────────────────
-  const setModal = open => $('noteModal')?.classList.toggle('show', open);
-  const openNote = (nama, itemId) => {
-    state.note = { nama: norm(nama), itemId };
-    const it = BY_ID.get(itemId);
-    const who = state.note.nama === 'neng' ? '👩 Neng' : '👨 Aa';
-    const title = $('noteTitle'); if (title) title.textContent = `${who} • ${it?.icon || '📝'} ${it?.nama || ''}`;
-    const inp = $('noteInput'); if (inp) inp.value = getRow(state.note.nama, itemId)?.catatan || '';
-    setModal(true);
-  };
-  window.openNote = openNote;
-
-  const saveNote = async () => {
-    const { nama, itemId } = state.note; if (!nama || !itemId) return;
-    const prev = getRow(nama, itemId) || { nama, hari_ke: state.day, item_id: itemId, selesai: false, waktu_selesai: null, catatan: '' };
-    const note = $('noteInput')?.value || '';
-    state.progress[nama].set(itemId, { ...prev, catatan: note });
-    cache.write(`ramc_prog_v3:${nama}:${state.day}`, Array.from(state.progress[nama].entries()));
-    render();
-    try {
-      const { error } = await supabase().from('daily_progress').upsert({ nama, hari_ke: state.day, item_id: itemId, selesai: Boolean(prev.selesai), waktu_selesai: prev.waktu_selesai || null, catatan: note || null }, { onConflict: 'nama,hari_ke,item_id' });
-      if (error) throw error;
-      setOffline(false); toast('Catatan tersimpan 📝'); setModal(false);
-    } catch { setOffline(true); toast('Koneksi bermasalah 😅'); }
   };
 
   // ── Load data ─────────────────────────────────────────────
@@ -410,11 +373,7 @@
       if (name?.trim()) addCustom(name.trim());
     });
 
-    // Note modal
-    $('closeNoteBtn')?.addEventListener('click', () => setModal(false));
-    $('noteModal')?.addEventListener('click', e => { if (e.target === $('noteModal')) setModal(false); });
-    $('saveNoteBtn')?.addEventListener('click', saveNote);
-    $('clearNoteBtn')?.addEventListener('click', async () => { const inp = $('noteInput'); if (inp) inp.value = ''; await saveNote(); });
+
 
     await loadData();
   };
