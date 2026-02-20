@@ -19,12 +19,16 @@
 }
 
 * {
-  box-sizing: border-box
+  box-sizing: border-box;
+  /* Prevent font scaling issues in landscape on mobile */
+  -webkit-text-size-adjust: 100%;
 }
 
 html,
 body {
-  height: 100%
+  height: 100%;
+  /* Fix sticky hover on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -37,6 +41,9 @@ body {
     radial-gradient(900px 620px at 40% 120%, rgba(26, 71, 42, .7), transparent 55%),
     linear-gradient(180deg, var(--green-950), var(--green-900) 45%, #07130c);
   overflow-x: hidden;
+  /* Better font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -49,12 +56,14 @@ a {
   flex-direction: column;
 }
 
+/* Ensure canvas doesn't block touches */
 .bg-canvas {
   position: fixed;
   inset: 0;
   z-index: -2;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 .bg-noise {
@@ -894,6 +903,57 @@ a {
   .grid.cols-2 {
     grid-template-columns: 1fr !important;
   }
+  
+  .pair-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Improve touch targets on mobile */
+  .btn, .tab, .seg-btn {
+    min-height: 48px; /* Standard tap target */
+  }
+
+  /* Adjust typography for small screens */
+  .h1 {
+    font-size: 24px;
+  }
+  
+  .container {
+    padding: 14px 12px 30px;
+  }
+
+  .topbar-inner {
+    padding: 12px 14px;
+  }
+
+  /* Hide less important elements if needed or stack them */
+  .actions .btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Ensure mood buttons are large enough */
+  .mood-btn {
+    aspect-ratio: auto;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* Extra small devices */
+@media(max-width: 380px) {
+  .brand .title {
+    font-size: 14px !important;
+  }
+  .brand .mark {
+    width: 32px;
+    height: 32px;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
 }
 
 .sr-only {
@@ -906,6 +966,56 @@ a {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ── Responsive Tables & Scroll ──────────────── */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  min-width: 600px; /* Force scroll on small screens */
+}
+
+/* ── Mobile Navigation ───────────────────────── */
+@media (max-width: 600px) {
+  .actions {
+    gap: 6px;
+  }
+  
+  /* Make main buttons bottom fixed if desired, or just easier to tap */
+  .floating-action {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  /* Stack mood buttons if too many */
+  .mood-btns {
+    flex-wrap: wrap;
+  }
+  
+  .mood-btn {
+    min-width: 44px;
+  }
+
+  /* Improve calendar heatmap on mobile */
+  .heat-grid {
+    gap: 4px;
+  }
+  
+  .heat-cell {
+    border-radius: 6px;
+    font-size: 10px;
+  }
 }
 
 /* ── Mood Meter ───────────────────────── */
@@ -927,6 +1037,7 @@ a {
   align-items: center;
   justify-content: center;
   transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  min-height: 48px;
 }
 
 .mood-btn:hover {
