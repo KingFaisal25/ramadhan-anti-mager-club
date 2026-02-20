@@ -34,7 +34,7 @@
         </div>
         <a class="btn secondary" href="checklist.html" aria-label="Checklist">✅</a>
         <a class="btn secondary" href="leaderboard.html" aria-label="Leaderboard">🏆</a>
-        <button type="button" class="btn secondary" id="musicToggle" aria-label="Musik">🎵</button>
+
         <a class="btn secondary" href="notes.html" id="notesBell" style="position:relative;"
           aria-label="Love Notes">💌<span id="notesUnread"
             style="display:none;position:absolute;top:-5px;right:-5px;background:rgba(251,113,133,.9);border-radius:999px;font-size:9px;font-weight:900;padding:2px 5px;color:#fff;">?</span></a>
@@ -232,46 +232,16 @@
       if (el && total > 0) { el.textContent = total; el.style.display = 'inline'; }
     })();
 
-    // Background Music Logic
+    // Background Music Logic (Pure Autoplay)
     (function () {
       const music = document.getElementById('bgMusic');
-      const btn = document.getElementById('musicToggle');
-      if (!music || !btn) return;
-
+      if (!music) return;
       let isPlaying = false;
-
       const playMusic = () => {
-        music.play().then(() => {
-          isPlaying = true;
-          btn.textContent = '🎵';
-          btn.classList.remove('muted');
-        }).catch(e => {
-          console.log('Autoplay blocked by browser policy');
-          isPlaying = false;
-          btn.textContent = '🔇';
-          btn.classList.add('muted');
-        });
+        music.play().then(() => { isPlaying = true; }).catch(e => { isPlaying = false; });
       };
-
-      // 1. Attempt immediate play
       window.addEventListener('DOMContentLoaded', playMusic);
-      playMusic(); // Direct attempt
-
-      // 2. Music Toggle button
-      btn.addEventListener('click', () => {
-        if (isPlaying) {
-          music.pause();
-          btn.textContent = '🔇';
-          btn.classList.add('muted');
-        } else {
-          music.play();
-          btn.textContent = '🎵';
-          btn.classList.remove('muted');
-        }
-        isPlaying = !isPlaying;
-      });
-
-      // 3. Fallback: play on first interaction (if autoplay blocked)
+      playMusic();
       const firstPlay = () => {
         if (!isPlaying) playMusic();
         document.removeEventListener('click', firstPlay);
